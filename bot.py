@@ -34,7 +34,7 @@ default_month = "January"  # Global fallback for month
 # Retrieve configuration from environment variables
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "7874129479:AAGYxPf59PgFcYL8-e33tSZAA9UOGzqFw9k")
 PORT = int(os.environ.get("PORT", "8443"))
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "https://expense-tracker-bot-fe4a.onrender.com")  # Replace with your Render URL
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "https://expense-tracker-bot-fe4a.onrender.com")  # Must start with "https://"
 
 # Initialize Bot Application
 app = Application.builder().token(BOT_TOKEN).build()
@@ -248,9 +248,18 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
-# Set the webhook URL for Telegram updates
-app.bot.set_webhook(WEBHOOK_URL + "/" + BOT_TOKEN)
-
-print("🤖 Bot is running...")
 # Run the bot as a web service using webhook
-app.run_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        print("🤖 Bot is running...")
+        # run_webhook will set the webhook automatically using the provided webhook_url parameter
+        await app.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=BOT_TOKEN,
+            webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN
+        )
+
+    asyncio.run(main())
