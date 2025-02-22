@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -30,8 +31,13 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
 
 default_month = "January"  # Global fallback for month
 
-# Initialize Bot Application (replace with your actual token)
-app = Application.builder().token("7874129479:AAGYxPf59PgFcYL8-e33tSZAA9UOGzqFw9k").build()
+# Retrieve configuration from environment variables
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7874129479:AAGYxPf59PgFcYL8-e33tSZAA9UOGzqFw9k")
+PORT = int(os.environ.get("PORT", "8443"))
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "https://expense-tracker-bot-fe4a.onrender.com")  # Replace with your Render URL
+
+# Initialize Bot Application
+app = Application.builder().token(BOT_TOKEN).build()
 
 # /start Command
 async def start(update: Update, context: CallbackContext) -> None:
@@ -242,5 +248,9 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
+# Set the webhook URL for Telegram updates
+app.bot.set_webhook(WEBHOOK_URL + "/" + BOT_TOKEN)
+
 print("🤖 Bot is running...")
-app.run_polling()
+# Run the bot as a web service using webhook
+app.run_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
