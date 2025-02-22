@@ -248,18 +248,18 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
-# Run the bot as a web service using webhook
 if __name__ == "__main__":
     import asyncio
 
-    async def main():
-        print("🤖 Bot is running...")
-        # run_webhook will set the webhook automatically using the provided webhook_url parameter
-        await app.run_webhook(
+    loop = asyncio.get_event_loop()
+    loop.create_task(
+        app.run_webhook(
             listen="0.0.0.0",
             port=PORT,
             url_path=BOT_TOKEN,
             webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN
         )
+    )
+    print("🤖 Bot is running...")
+    loop.run_forever()
 
-    asyncio.run(main())
