@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS transactions (
 """)
 conn.commit()
 
-# Predefined lists
+# Predefined lists and variables
 CATEGORIES = ["F&B", "Transport", "Necessities", "Social", "Education", "Shopping", "Others"]
 ACCOUNTS = ["OCBC", "Standard Chartered", "Cash", "Webull"]
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+default_month = "January"
 
-default_month = "January"  # Global fallback for month
 
 # Retrieve configuration from environment variables
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "7874129479:AAGYxPf59PgFcYL8-e33tSZAA9UOGzqFw9k")
@@ -253,22 +253,20 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
+# Main function to initialize and run the webhook
 async def main():
-    # Create your custom aiohttp web application
-    aiohttp_app = web.Application()
-    aiohttp_app.router.add_get('/', health)
-
-    # Run the webhook and pass in your custom web_app
+    # Initialize the Application (and its internal aiohttp web_app)
+    await app.initialize()
+    # Add your health check endpoint to the internal web_app
+    app.web_app.router.add_get('/', health)
+    # Run the webhook without passing any custom app parameter
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
         url_path=BOT_TOKEN,
-        webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN,
-        web_app=aiohttp_app,
+        webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN
     )
 
-    
 if __name__ == "__main__":
     import asyncio
     asyncio.run(main())
-
