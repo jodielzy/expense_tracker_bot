@@ -9,10 +9,6 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Call
 async def health(request):
     return web.Response(text="Bot is running", status=200)
 
-# Create a custom aiohttp application
-custom_app = web.Application()
-custom_app.router.add_get('/', health)
-
 # Enable logging
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
@@ -257,20 +253,21 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
-# Run the bot as a web service using the custom app with the GET route
+# Main function to initialize the app, add the health check route, and run the webhook
+async def main():
+    # Initialize the Application (creates the internal web_app)
+    await app.initialize()
+    # Add the health check endpoint to the internal web_app
+    app.web_app.router.add_get('/', health)
+    # Start the webhook; note that we no longer pass an "app" keyword argument.
+    await app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=BOT_TOKEN,
+        webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN,
+    )
+    
 if __name__ == "__main__":
     import asyncio
-
-    loop = asyncio.get_event_loop()
-    loop.create_task(
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            url_path=BOT_TOKEN,
-            webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN,
-            app=custom_app  # Passing the custom app with the health check route
-        )
-    )
-    print("🤖 Bot is running...")
-    loop.run_forever()
+    asyncio.run(main())
 
