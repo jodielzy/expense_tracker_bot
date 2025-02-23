@@ -253,19 +253,20 @@ app.add_handler(CallbackQueryHandler(account_selected, pattern="^account_"))
 app.add_handler(CallbackQueryHandler(save_account_selected, pattern="^save_account_"))
 app.add_handler(CallbackQueryHandler(change_all_transactions_callback, pattern="^changeall_"))
 
-# Main function to initialize the app, add the health check route, and run the webhook
 async def main():
-    # Initialize the Application (creates the internal web_app)
-    await app.initialize()
-    # Add the health check endpoint to the internal web_app
-    app.web_app.router.add_get('/', health)
-    # Start the webhook; note that we no longer pass an "app" keyword argument.
+    # Create your custom aiohttp web application
+    aiohttp_app = web.Application()
+    aiohttp_app.router.add_get('/', health)
+
+    # Run the webhook and pass in your custom web_app
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
         url_path=BOT_TOKEN,
         webhook_url=WEBHOOK_URL + "/" + BOT_TOKEN,
+        web_app=aiohttp_app,
     )
+
     
 if __name__ == "__main__":
     import asyncio
