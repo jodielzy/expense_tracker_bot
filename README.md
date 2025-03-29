@@ -1,7 +1,7 @@
 ### Expense Tracker Bot
 
 ## Motivation
-I have tried using apps to track my expenses, however I always end up forgetting to key in my spendings. Moreover, most apps are payable if I wish to add notes for my transactions. So, I thought of building a telegram bot to track my expense since telegram is my most used application, hence I will be reminded to key in my spendinds everytime I open telegram.
+I have tried using apps to track my expenses, however I always end up forgetting to key in my spendings. Moreover, most apps are payable if I wish to add notes for my transactions. So, I thought of building a telegram bot to track my expense since telegram is my most used application, hence I will be reminded to key in my spendings everytime I open telegram.
 
 ## Features
 
